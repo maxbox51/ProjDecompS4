@@ -18,7 +18,7 @@ setGeneric("downscale",    signature="obj", function(obj) {stop("downscale() is 
 
 #------------------------------------------------------------------------------------------------------------------------
 setMethod("show", "DiagonalScaling",
-      function(obj, ...){
+      function(obj){
           cat(sprintf("Diagonal Scaling object of dimension (%d x %d)\n",
                         length(obj@rowFactor), length(obj@colFactor)))
           })
