@@ -12,10 +12,9 @@
 setGeneric("show",         signature="obj", function(obj) standardGeneric("show"))
 setGeneric("getColFactor", signature="obj", function(obj) standardGeneric("getColFactor"))
 setGeneric("getRowFactor", signature="obj", function(obj) standardGeneric("getRowFactor"))
-setGeneric("upscale",      signature="obj", function(obj) standardGeneric("getColFactor"))
-setGeneric("downscale",    signature="obj", function(obj) standardGeneric("getRowFactor"))
+setGeneric("upscale",      signature="obj", function(obj) {stop("upscale() is not meaningful for arbitrary objects")})
+setGeneric("downscale",    signature="obj", function(obj) {stop("downscale() is not meaningful for arbitrary objects")})
 #setGeneric("t") -- base::t is already a generic function
-setGeneric("inverse")
 
 #------------------------------------------------------------------------------------------------------------------------
 setMethod("show", "DiagonalScaling",
@@ -43,8 +42,7 @@ function(obj) {
 })
 
 #------------------------------------------------------------------------------------------------------------------------
-setMethod("inverse", "default",
-function(obj) {
+setGeneric("inverse",signature="obj",function(obj) {
     stop("Objects are not in general invertible")
 })
 
@@ -160,8 +158,8 @@ setMethod("projectiveDecomposition", "ScaleDecomposition",
                                      magnitude     = scale,
                                      scaling       = .DiagonalScaling(
                                                          colFactor = rep(1.0,dim(matrix)[2],
-                                                         rowFactor = rep(1.0,dim(matrix)[1])))
-} # projectiveDecomposition
+                                                         rowFactor = rep(1.0,dim(matrix)[1]))))
+}) # projectiveDecomposition
 
 #------------------------------------------------------------------------------------------------------------------------
 # Doubly-Stochastic Decomposition (L1-based scaling, defined for some non-negative matrices)
@@ -177,7 +175,7 @@ setMethod("doublyStochasticDecomposition", "ScaleDecomposition",
                                      magnitude     = scale,
                                      scaling       = .DiagonalScaling(
                                                          colFactor = rep(1.0,dim(matrix)[2],
-                                                         rowFactor = rep(1.0,dim(matrix)[1])))
-} # doublyStochasticDecomposition
+                                                         rowFactor = rep(1.0,dim(matrix)[1]))))
+}) # doublyStochasticDecomposition
 
 #------------------------------------------------------------------------------------------------------------------------
