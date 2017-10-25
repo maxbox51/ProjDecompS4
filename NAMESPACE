@@ -1,0 +1,12 @@
+exportClasses(ProjectiveDecomposition)
+
+exportMethods(
+   show,
+   getHorizontalVector,
+   getVerticalVector
+   )
+
+export(
+   ProjectiveDecomposition
+   )
+

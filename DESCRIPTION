@@ -1,0 +1,15 @@
+Package: ProjectiveDecomposition
+Type: Package
+Title: Decompose a real matrix into scale factors and a scale-independent matrix
+Version: 0.99.0
+Date: 2017-10-20
+Author: Max Robinson
+Depends: R (>= 3.4.0), Matrix
+Imports: methods
+Suggests: RUnit
+License: Apache 2.0
+Maintainer: Max Robinson <max.robinson@systemsbiology.org>
+Description: description goes here (not more than a few lines)
+Collate:
+  ProjectiveDecomposition.R
+
