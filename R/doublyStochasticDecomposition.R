@@ -24,7 +24,7 @@ function(obj, ...) standardGeneric("doublyStochasticDecomposition"))
 setMethod("doublyStochasticDecomposition", "matrix",
 function(obj, ...) {
     if (is.numeric(obj)) {
-        doublyStochasticDecomposition(as(obj,"dgTMatrix"))
+        doublyStochasticDecomposition(as(obj,"dgTMatrix"), ...)
     } else {
         stop("")
     }
@@ -32,7 +32,7 @@ function(obj, ...) {
 
 setMethod("doublyStochasticDecomposition", "dMatrix",
 function(obj, ...) {
-    doublyStochasticDecomposition(as(obj,"dgTMatrix"))
+    doublyStochasticDecomposition(as(obj,"dgTMatrix"), ...)
 })
 
 #-------------------------------------------------------------------------------
@@ -100,7 +100,7 @@ function(obj,
     if (min(obj@x) >= 0.0) {
         m   <- dim(obj)[1]
         n   <- dim(obj)[2]
-        sc  <- initial.scaling(m,n,start)
+        sc  <- initial.scaling(m,n,start,verbose)
         rf  <- getRowFactor(sc)
         cf  <- getColFactor(sc)
         mag <- sum(obj@x) / (m*n)

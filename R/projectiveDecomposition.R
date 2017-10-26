@@ -25,7 +25,7 @@ function(obj, ...) {
     projectiveDecomposition(as(obj,"dgTMatrix"), ...)
 })
 
-scaleHadamardSquare <- function(obj, ...) {
+scaleForHadamardSquare <- function(obj, ...) {
     H   <- obj
     H@x <- H@x*H@x # Hadamard square
     getScaling(doublyStochasticDecomposition(H, ...))
@@ -34,7 +34,7 @@ scaleHadamardSquare <- function(obj, ...) {
 setMethod("projectiveDecomposition", "dgTMatrix",
 function(obj, ...) {
     mag <- rms(obj)
-    hsc <- scaleHadamardSquare(obj/mag, ...)
+    hsc <- scaleForHadamardSquare(obj/mag, ...)
     sc  <- .DiagonalScaling(colFactor = sqrt(getColFactor(hsc)),
                             rowFactor = sqrt(getRowFactor(hsc)))
     .ScaleDecomposition(canonicalForm = downscale(sc, obj/mag),
