@@ -1,3 +1,5 @@
+
+require(Matrix)
 # Two draft S4 classes for Max
 #------------------------------------------------------------------------------------------------------------------------
 #------------------------------------------------------------------------------------------------------------------------
@@ -12,9 +14,9 @@
 setGeneric("show",         signature="obj", function(obj) standardGeneric("show"))
 setGeneric("getColFactor", signature="obj", function(obj) standardGeneric("getColFactor"))
 setGeneric("getRowFactor", signature="obj", function(obj) standardGeneric("getRowFactor"))
-setGeneric("upscale",      signature="obj", function(obj) {stop("upscale() is not meaningful for arbitrary objects")})
-setGeneric("downscale",    signature="obj", function(obj) {stop("downscale() is not meaningful for arbitrary objects")})
-#setGeneric("t") -- base::t is already a generic function
+setGeneric("upscale",      function(obj) {stop("not meaningful for arbitrary objects")})
+setGeneric("downscale",    function(obj) {stop("not meaningful for arbitrary objects")})
+#setGeneric("t") -- t() is already a generic function (package:base)
 
 #------------------------------------------------------------------------------------------------------------------------
 setMethod("show", "DiagonalScaling",
@@ -37,8 +39,8 @@ function(obj){
 
 #------------------------------------------------------------------------------------------------------------------------
 setMethod("t", "DiagonalScaling",
-function(obj) {
-  .DiagonalScaling(colFactor = obj@rowFactor, rowFactor = obj@colFactor)
+function(x) {
+  .DiagonalScaling(colFactor = x@rowFactor, rowFactor = x@colFactor)
 })
 
 #------------------------------------------------------------------------------------------------------------------------
@@ -108,30 +110,18 @@ setMethod("downscale", "DiagonalScaling",
                                            scaling       = "DiagonalScaling")
                                    )
 #------------------------------------------------------------------------------------------------------------------------
-setMethod("getCanonicalForm", "ScaleDecomposition",
-      function(obj){
-          obj@canonicalForm
-          })
-
-#------------------------------------------------------------------------------------------------------------------------
-setMethod("getMagnitude", "ScaleDecomposition",
-      function(obj){
-          obj@magnitude
-          })
-
-#------------------------------------------------------------------------------------------------------------------------
-setMethod("getScaling", "ScaleDecomposition",
-      function(obj){
-          obj@scaling
-          })
-
+setGeneric("getCanonicalForm", signature="obj", function(obj) standardGeneric("getCanonicalForm"))
+setGeneric("getMagnitude",     signature="obj", function(obj) standardGeneric("getMagnitude"))
+setGeneric("getScaling",       signature="obj", function(obj) standardGeneric("getScaling"))
+setGeneric("projectiveDecomposition",      function(obj) {stop("not meaningful for arbitrary objects")})
+setGeneric("doublyStochasticDecomposition",    function(obj) {stop("not meaningful for arbitrary objects")})
 #------------------------------------------------------------------------------------------------------------------------
 setMethod("t", "ScaleDecomposition",
-function(obj){
+function(x){
     .ScalingDecomposition(
-        canonicalForm = t(obj@canonicalForm),
-        magnitude     = obj@magnitude,
-        scaling       = t(obj@scaling))
+        canonicalForm = t(x@canonicalForm),
+        magnitude     = x@magnitude,
+        scaling       = t(x@scaling))
 })
 
 #------------------------------------------------------------------------------------------------------------------------
@@ -152,13 +142,13 @@ RMS <- function(obj) { sqrt(mean(as.numeric(obj))) }
 # This gets the magnitude part right, but doesn't do the row and column scalings
 # Satisfies the criterion: RMS(row) = RMS(col) = 1.0.
 setMethod("projectiveDecomposition", "ScaleDecomposition",
-           function(matrix) { # Must be a real-valued matrix, broadest virtual class is Matrix::dMatrix
-               scale <- RMS(matrix)
-               .ScalingDecomposition(canonicalForm = (1/scale) * matrix,
+           function(obj) { # Must be a real-valued matrix, broadest virtual class is dMatrix
+               scale <- RMS(obj)
+               .ScalingDecomposition(canonicalForm = (1.0/scale) * obj,
                                      magnitude     = scale,
                                      scaling       = .DiagonalScaling(
-                                                         colFactor = rep(1.0,dim(matrix)[2],
-                                                         rowFactor = rep(1.0,dim(matrix)[1]))))
+                                                         colFactor = rep(1.0,dim(obj)[2],
+                                                         rowFactor = rep(1.0,dim(obj)[1]))))
 }) # projectiveDecomposition
 
 #------------------------------------------------------------------------------------------------------------------------
@@ -169,13 +159,13 @@ setMethod("projectiveDecomposition", "ScaleDecomposition",
 #    sum(row) = length(row)
 #    sum(col) = length(col)
 setMethod("doublyStochasticDecomposition", "ScaleDecomposition",
-           function(matrix) { # Must be a real-valued matrix, broadest virtual class is Matrix::dMatrix
-               scale <- sum(matrix)/prod(dim(matrix))
-               .ScalingDecomposition(canonicalForm = (1/scale) * matrix,
+           function(obj) { # Must be a real-valued matrix, broadest virtual class is dMatrix
+               scale <- sum(obj)/prod(dim(obj))
+               .ScalingDecomposition(canonicalForm = (1.0/scale) * obj,
                                      magnitude     = scale,
                                      scaling       = .DiagonalScaling(
-                                                         colFactor = rep(1.0,dim(matrix)[2],
-                                                         rowFactor = rep(1.0,dim(matrix)[1]))))
+                                                         colFactor = rep(1.0,dim(obj)[2],
+                                                         rowFactor = rep(1.0,dim(obj)[1]))))
 }) # doublyStochasticDecomposition
 
 #------------------------------------------------------------------------------------------------------------------------
