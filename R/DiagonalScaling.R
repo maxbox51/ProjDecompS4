@@ -93,17 +93,19 @@ function(obj) {
 #
 # upscale():  "Multiply" by the diagonal scaling.
 #
-setGeneric("upscale",      signature=c("obj","matrix"),
-function(obj,matrix) standardGeneric("upscale"))
+setGeneric("upscale",      signature=c("obj","mat"),
+function(obj,mat) standardGeneric("upscale"))
 
 setMethod("upscale", c("DiagonalScaling","matrix"),
-function(obj, matrix){
-    matrix * obj@rowFactor[row(matrix)] * obj@colFactor[col(matrix)]
+function(obj, mat){
+    mat * obj@rowFactor[row(mat)] * obj@colFactor[col(mat)]
 })
 
 setMethod("upscale", c("DiagonalScaling","dMatrix"),
-function(obj, matrix){
-    matrix@x * obj@rowFactor[row(matrix)] * obj@colFactor[col(matrix)]
+function(obj, mat){
+    M <- mat
+    M@x <- mat@x * obj@rowFactor[row(mat)] * obj@colFactor[col(mat)]
+    M
 })
 
 #

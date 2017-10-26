@@ -44,7 +44,7 @@ setMethod("getScaling", "ScaleDecomposition",
 setGeneric("t")
 setMethod("t", "ScaleDecomposition",
 function(x){
-    .ScalingDecomposition(
+    .ScaleDecomposition(
         canonicalForm = t(x@canonicalForm),
         magnitude     = x@magnitude,
         scaling       = t(x@scaling))
@@ -58,8 +58,8 @@ function(x){
 setGeneric("inverse")
 setMethod("inverse", "ScaleDecomposition",
 function(obj){
-    .ScalingDecomposition(
-        canonicalForm = upscale(obj@scale * obj@canonicalForm, obj@scaling),
+    .ScaleDecomposition(
+        canonicalForm = upscale(obj@scaling, getMagnitude(obj) * getCanonicalForm(obj)),
         magnitude     = 1/obj@magnitude,
         scaling       = inverse(obj@scaling))
 })
@@ -69,9 +69,17 @@ function(obj){
 #
 setGeneric("rms", signature="obj",
            function(obj) standardGeneric("rms"))
+setMethod("rms", "matrix",
+          function(obj) {
+            rms(as.numeric(obj))
+          })
+setMethod("rms", "dMatrix",
+          function(obj) {
+            rms(as.numeric(obj))
+          })
 setMethod("rms", "numeric",
-function(obj) {
-    sqrt(mean(as.vector(obj) * as.vector(obj)))
-})
+          function(obj) {
+            sqrt(mean(as.vector(obj) * as.vector(obj)))
+          })
 
 # end of ScaleDecomposition.R
