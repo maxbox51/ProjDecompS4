@@ -15,15 +15,9 @@ setGeneric("getColFactor", signature="obj", function(obj) standardGeneric("getCo
 setGeneric("getRowFactor", signature="obj", function(obj) standardGeneric("getRowFactor"))
 setGeneric("upscale",      function(obj,matrix) {stop("not meaningful for arbitrary objects")})
 setGeneric("downscale",    function(obj,matrix) {stop("not meaningful for arbitrary objects")})
-#setGeneric("show") -- show() is already a generic function
+#setGeneric("summary") -- already a generic function
+#setGeneric("show") -- already a generic function
 #setGeneric("t") -- t() is already a generic function (package:base)
-
-#------------------------------------------------------------------------------------------------------------------------
-setMethod("show", "DiagonalScaling",
-      function(obj){
-          cat(sprintf("Diagonal Scaling object of dimension (%d x %d)\n",
-                        length(obj@rowFactor), length(obj@colFactor)))
-          })
 
 #------------------------------------------------------------------------------------------------------------------------
 setMethod("getColFactor", "DiagonalScaling",
@@ -35,6 +29,37 @@ setMethod("getColFactor", "DiagonalScaling",
 setMethod("getRowFactor", "DiagonalScaling",
 function(obj){
     obj@rowFactor
+})
+
+#------------------------------------------------------------------------------------------------------------------------
+setMethod("show", "DiagonalScaling",
+function(obj){
+    cat(sprintf("Diagonal Scaling object of dimension (%d x %d)\n",
+                length(obj@rowFactor), length(obj@colFactor)))
+})
+
+#------------------------------------------------------------------------------------------------------------------------
+setMethod("summary", "DiagonalScaling",
+function(object,
+         digits = max(3L, getOption("digits") - 3L),
+         display = 5){
+    m <- length(object@rowFactor)
+    n <- length(object@colFactor)
+    cat("(",paste(m,"x",n),")\ncols: ")
+    if (m <= display) {
+        cat(paste(signif(getRowFactor(object),digits)))
+    } else {
+        cat(paste(signif(getRowFactor(object)[1:display],digits)))
+        cat(" ...")
+    }
+    cat("\ncols: ")
+    if (n <= display) {
+        cat(paste(signif(getColFactor(object),digits)))
+    } else {
+        cat(paste(signif(getColFactor(object)[1:display],digits)))
+        cat("... ")
+    }
+    cat("\n")
 })
 
 #------------------------------------------------------------------------------------------------------------------------
