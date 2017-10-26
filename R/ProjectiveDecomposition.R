@@ -7,10 +7,11 @@ require(Matrix)
 # "downscale" is upscaling by the inverse, without having to explicitly represent the inverse; if "upscale" is a
 # multiplication, "downscale" is the corresponding division.
 #
-.DiagonalScaling <- setClass ("DiagonalScaling",
-                            slots = c(colFactor="numeric",
-                                      rowFactor="numeric")
-                  )
+.DiagonalScaling <-
+setClass ("DiagonalScaling",
+          slots = c(colFactor="numeric",
+                    rowFactor="numeric")
+)
 setGeneric("getColFactor", signature="obj", function(obj) standardGeneric("getColFactor"))
 setGeneric("getRowFactor", signature="obj", function(obj) standardGeneric("getRowFactor"))
 setGeneric("upscale",      function(obj,matrix) {stop("not meaningful for arbitrary objects")})
@@ -20,47 +21,52 @@ setGeneric("downscale",    function(obj,matrix) {stop("not meaningful for arbitr
 #setGeneric("t") -- t() is already a generic function (package:base)
 
 #------------------------------------------------------------------------------------------------------------------------
-setMethod("getColFactor", "DiagonalScaling",
-      function(obj){
-          obj@colFactor
-          })
-
-#------------------------------------------------------------------------------------------------------------------------
-setMethod("getRowFactor", "DiagonalScaling",
-function(obj){
-    obj@rowFactor
-})
-
-#------------------------------------------------------------------------------------------------------------------------
-setMethod("show", "DiagonalScaling",
+setMethod("getColFactor",
+          signature(object="DiagonalScaling"),
 function(object){
-    cat(sprintf("Diagonal Scaling object of dimension (%d x %d)\n",
-                length(object@rowFactor), length(object@colFactor)))
+    object@colFactor
 })
 
 #------------------------------------------------------------------------------------------------------------------------
-setMethod("summary", "DiagonalScaling",
-function(object,
-         digits = max(3L, getOption("digits") - 3L),
-         display = 5){
-    m <- length(object@rowFactor)
-    n <- length(object@colFactor)
-    cat("(",paste(m,"x",n),")\ncols: ")
-    if (m <= display) {
-        cat(paste(signif(getRowFactor(object),digits)))
-    } else {
-        cat(paste(signif(getRowFactor(object)[1:display],digits)))
-        cat(" ...")
-    }
-    cat("\ncols: ")
-    if (n <= display) {
-        cat(paste(signif(getColFactor(object),digits)))
-    } else {
-        cat(paste(signif(getColFactor(object)[1:display],digits)))
-        cat("... ")
-    }
-    cat("\n")
+setMethod("getRowFactor",
+          signature(object="DiagonalScaling"),
+function(object){
+    object@rowFactor
 })
+
+#------------------------------------------------------------------------------------------------------------------------
+setMethod("show",
+    signature(object = "DiagonalScaling"),
+    function (object){
+        cat(sprintf("Diagonal Scaling object of dimension (%d x %d)\n",
+                    length(object@rowFactor), length(object@colFactor)))
+    }
+)
+#------------------------------------------------------------------------------------------------------------------------
+setMethod("summary",
+    signature(object = "DiagonalScaling"),
+    function(object,
+             digits = max(3L, getOption("digits") - 3L),
+             display = 5){
+        m <- length(object@rowFactor)
+        n <- length(object@colFactor)
+        cat("(",paste(m,"x",n),")\ncols: ")
+        if (m <= display) {
+            cat(paste(signif(getRowFactor(object),digits)))
+        } else {
+            cat(paste(signif(getRowFactor(object)[1:display],digits)))
+            cat(" ...")
+        }
+        cat("\ncols: ")
+        if (n <= display) {
+            cat(paste(signif(getColFactor(object),digits)))
+        } else {
+            cat(paste(signif(getColFactor(object)[1:display],digits)))
+            cat("... ")
+        }
+        cat("\n")
+    }
+)
 
 #------------------------------------------------------------------------------------------------------------------------
 setMethod("t", "DiagonalScaling",
