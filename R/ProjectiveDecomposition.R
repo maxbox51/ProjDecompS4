@@ -33,9 +33,9 @@ function(obj){
 
 #------------------------------------------------------------------------------------------------------------------------
 setMethod("show", "DiagonalScaling",
-function(obj){
+function(object){
     cat(sprintf("Diagonal Scaling object of dimension (%d x %d)\n",
-                length(obj@rowFactor), length(obj@colFactor)))
+                length(object@rowFactor), length(object@colFactor)))
 })
 
 #------------------------------------------------------------------------------------------------------------------------
