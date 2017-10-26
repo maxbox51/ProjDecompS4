@@ -67,9 +67,9 @@ upscale.dMatrix <- function(obj, matrix) {
 setMethod("upscale", "DiagonalScaling",
       function(obj, matrix){
               if (is(matrix,"dMatrix")) {
-                  upscale.matrix(obj,matrix)
-              } else {
                   upscale.dMatrix(obj,matrix)
+              } else {
+                  upscale.matrix(obj,matrix)
               }
           })
 
@@ -87,9 +87,9 @@ downscale.dMatrix <- function(obj, matrix) {
 setMethod("downscale", "DiagonalScaling",
       function(obj, matrix){
               if (is(matrix,"dMatrix")) {
-                  downscale.matrix(obj,matrix)
-              } else {
                   downscale.dMatrix(obj,matrix)
+              } else {
+                  downscale.matrix(obj,matrix)
               }
           })
 
