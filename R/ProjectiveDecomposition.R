@@ -12,39 +12,32 @@ setClass ("DiagonalScaling",
           slots = c(colFactor="numeric",
                     rowFactor="numeric")
 )
-setGeneric("getColFactor", signature="obj", function(obj) standardGeneric("getColFactor"))
-setGeneric("getRowFactor", signature="obj", function(obj) standardGeneric("getRowFactor"))
-setGeneric("upscale",      function(obj,matrix) {stop("not meaningful for arbitrary objects")})
-setGeneric("downscale",    function(obj,matrix) {stop("not meaningful for arbitrary objects")})
-#setGeneric("summary") -- already a generic function
-#setGeneric("show") -- already a generic function
-#setGeneric("t") -- t() is already a generic function (package:base)
 
 #------------------------------------------------------------------------------------------------------------------------
-setMethod("getColFactor",
-          signature(object="DiagonalScaling"),
-function(object){
-    object@colFactor
-})
+# Slot accessor methods
+#
+setGeneric("getColFactor", function(obj) standardGeneric("getColFactor"))
+setMethod("getColFactor", "DiagonalScaling", function(obj){ obj@colFactor })
+
+setGeneric("getRowFactor", function(obj) standardGeneric("getRowFactor"))
+setMethod("getRowFactor", "DiagonalScaling", function(obj){ obj@rowFactor })
 
 #------------------------------------------------------------------------------------------------------------------------
-setMethod("getRowFactor",
-          signature(object="DiagonalScaling"),
-function(object){
-    object@rowFactor
-})
-
-#------------------------------------------------------------------------------------------------------------------------
-setMethod("show",
-    signature(object = "DiagonalScaling"),
+# show()
+#
+setGeneric("show")
+setMethod("show", "DiagonalScaling",
     function (object){
         cat(sprintf("Diagonal Scaling object of dimension (%d x %d)\n",
                     length(object@rowFactor), length(object@colFactor)))
     }
 )
+
 #------------------------------------------------------------------------------------------------------------------------
-setMethod("summary",
-    signature(object = "DiagonalScaling"),
+# summary()
+#
+setGeneric("summary")
+setMethod("summary", "DiagonalScaling",
     function(object,
              digits = max(3L, getOption("digits") - 3L),
              display = 5){
@@ -69,14 +62,20 @@ setMethod("summary",
 )
 
 #------------------------------------------------------------------------------------------------------------------------
+# t(): the transpose of an operator with rows and columns
+#
+setGeneric("t")
 setMethod("t", "DiagonalScaling",
 function(x) {
   .DiagonalScaling(colFactor = x@rowFactor, rowFactor = x@colFactor)
 })
 
 #------------------------------------------------------------------------------------------------------------------------
-setGeneric("inverse",signature="obj",function(obj) {
-    stop("Objects are not in general invertible")
+# inverse(): the inverse of a matrix operator
+#
+setGeneric("inverse",signature="obj",
+function(obj) {
+    stop("Objects are not invertible in general")
 })
 
 setMethod("inverse", "DiagonalScaling",
@@ -84,45 +83,43 @@ function(obj) {
   .DiagonalScaling(colFactor = 1.0 / obj@colFactor, rowFactor = 1.0 / obj@rowFactor)
 })
 
-#------------------------------------------------------------------------------------------------------------------------
-# Return the (matrix) class we are given, whether it is an S4 class or not.
-#
-upscale.matrix <- function(obj, matrix) {
-    matrix * obj@rowFactor[row(matrix)] * obj@colFactor[col(matrix)]
-}
-           
-upscale.dMatrix <- function(obj, matrix) {
-    matrix@x * obj@rowFactor[row(matrix)] * obj@colFactor[col(matrix)]
-}
-           
-setMethod("upscale", "DiagonalScaling",
-      function(obj, matrix){
-              if (is(matrix,"dMatrix")) {
-                  upscale.dMatrix(obj,matrix)
-              } else {
-                  upscale.matrix(obj,matrix)
-              }
-          })
 
 #------------------------------------------------------------------------------------------------------------------------
-# Return the (matrix) class we are given, whether it is an S4 class or not.
+# upscale(), downscale():
 #
-downscale.matrix <- function(obj, matrix) {
+# Methods defining how a DiagonalScaling operates on a matrix. These are written to return the
+# matrix class which they are given, whether it is an S4 class or not.
+#
+# upscale():  "Multiply" by the diagonal scaling.
+#
+setGeneric("upscale",      signature=c("obj","matrix"),
+           function(obj,matrix) {stop("not meaningful for arbitrary objects")})
+
+setMethod("upscale", c("DiagonalScaling","matrix"),
+function(obj, matrix){
+    matrix * obj@rowFactor[row(matrix)] * obj@colFactor[col(matrix)]
+})
+
+setMethod("upscale", c("DiagonalScaling","dMatrix"),
+function(obj, matrix){
+    matrix@x * obj@rowFactor[row(matrix)] * obj@colFactor[col(matrix)]
+})
+
+#
+# downscale(): "Divide" by the diagonal scaling.
+#
+setGeneric("downscale",    signature=c("obj","matrix"),
+           function(obj,matrix) {stop("not meaningful for arbitrary objects")})
+
+setMethod("downscale", c("DiagonalScaling","matrix"),
+function(obj,matrix) {
     matrix / (obj@rowFactor[row(matrix)] * obj@colFactor[col(matrix)])
-}
-           
-downscale.dMatrix <- function(obj, matrix) {
-    matrix@x / (obj@rowFactor[row(matrix)] * obj@colFactor[col(matrix)])
-}
-           
-setMethod("downscale", "DiagonalScaling",
-      function(obj, matrix){
-              if (is(matrix,"dMatrix")) {
-                  downscale.dMatrix(obj,matrix)
-              } else {
-                  downscale.matrix(obj,matrix)
-              }
-          })
+})
+
+setMethod("downscale", c("DiagonalScaling","dMatrix"),
+function(obj,matrix) {
+    matrix / (obj@rowFactor[row(matrix)] * obj@colFactor[col(matrix)])
+})
 
 #------------------------------------------------------------------------------------------------------------------------
 #------------------------------------------------------------------------------------------------------------------------
@@ -135,18 +132,29 @@ setMethod("downscale", "DiagonalScaling",
 #
 # Likewise, most matrix decompositions are not limited to scaling.
 #------------------------------------------------------------------------------------------------------------------------
-.ScaleDecomposition <- setClass ("ScaleDecomposition",
-                                 slots = c(canonicalForm = "dMatrix",
-                                           magnitude     = "numeric",
-                                           scaling       = "DiagonalScaling")
-                                   )
+.ScaleDecomposition <-
+setClass ("ScaleDecomposition",
+          slots = c(canonicalForm = "dMatrix",
+                    magnitude     = "numeric",
+                    scaling       = "DiagonalScaling")
+)
+
 #------------------------------------------------------------------------------------------------------------------------
+# Slot accessor methods
+#
 setGeneric("getCanonicalForm", signature="obj", function(obj) standardGeneric("getCanonicalForm"))
-setGeneric("getMagnitude",     signature="obj", function(obj) standardGeneric("getMagnitude"))
-setGeneric("getScaling",       signature="obj", function(obj) standardGeneric("getScaling"))
-setGeneric("projectiveDecomposition",      function(obj) {stop("not meaningful for arbitrary objects")})
-setGeneric("doublyStochasticDecomposition",    function(obj) {stop("not meaningful for arbitrary objects")})
+setMethod("getCanonicalForm", "ScaleDecomposition", function(obj){ obj@canonicalForm })
+
+setGeneric("getMagnitude", signature="obj", function(obj) standardGeneric("getMagnitude"))
+setMethod("getMagnitude", "ScaleDecomposition", function(obj){ obj@magnitude })
+
+setGeneric("getScaling", signature="obj", function(obj) standardGeneric("getScaling"))
+setMethod("getScaling", "ScaleDecomposition", function(obj){ obj@scaling })
+
 #------------------------------------------------------------------------------------------------------------------------
+# t(): transposition of a scale decomposition
+#
+setGeneric("t")
 setMethod("t", "ScaleDecomposition",
 function(x){
     .ScalingDecomposition(
@@ -156,7 +164,10 @@ function(x){
 })
 
 #------------------------------------------------------------------------------------------------------------------------
-# Method "inverse" was defined generic in class DiagonalScaling.
+# inverse():  A scale decomposition has a well-defined inverse, which relates a matrix in a canonically scaled
+#             form to a particular non-canonically scaled equivalent matrix instead of vice-versa.
+#
+setGeneric("inverse")
 setMethod("inverse", "ScaleDecomposition",
 function(obj){
     .ScalingDecomposition(
@@ -166,20 +177,27 @@ function(obj){
 })
 
 #------------------------------------------------------------------------------------------------------------------------
-RMS <- function(obj) { sqrt(mean(as.numeric(obj))) }
+# rms(obj): The root-mean-square of all elements in a numeric object.
+#
+setGeneric("rms", signature="obj", function(obj) standardGeneric("rms"))
+setMethod("rms", "numeric", function(obj) { sqrt(mean(as.vector(obj) * as.vector(obj))) })
 
 #------------------------------------------------------------------------------------------------------------------------
 # Projective Decomposition (an L2-based scaling)
 # This gets the magnitude part right, but doesn't do the row and column scalings
-# Satisfies the criterion: RMS(row) = RMS(col) = 1.0.
-setMethod("projectiveDecomposition", "ScaleDecomposition",
-           function(obj) { # Must be a real-valued matrix, broadest virtual class is dMatrix
-               scale <- RMS(obj)
-               .ScalingDecomposition(canonicalForm = (1.0/scale) * obj,
-                                     magnitude     = scale,
-                                     scaling       = .DiagonalScaling(
-                                                         colFactor = rep(1.0,dim(obj)[2],
-                                                         rowFactor = rep(1.0,dim(obj)[1]))))
+# Satisfies the criterion: rms(row) = rms(col) = 1.0.
+#
+setGeneric("projectiveDecomposition",signature="obj",
+function(obj, ...) standardGeneric("projectiveDecomposition"))
+
+setMethod("projectiveDecomposition", "dgTMatrix",
+function(obj, ...) {
+    mag <- rms(obj)
+    .ScalingDecomposition(canonicalForm = obj / mag,
+                          magnitude     = mag,
+                          scaling       =
+        .DiagonalScaling(colFactor = rep(1.0,dim(obj)[2]),
+                         rowFactor = rep(1.0,dim(obj)[1])))
 }) # projectiveDecomposition
 
 #------------------------------------------------------------------------------------------------------------------------
@@ -189,14 +207,18 @@ setMethod("projectiveDecomposition", "ScaleDecomposition",
 # Unscaled matrix satisfies the criteria, for all rows and columns:
 #    sum(row) = length(row)
 #    sum(col) = length(col)
-setMethod("doublyStochasticDecomposition", "ScaleDecomposition",
-           function(obj) { # Must be a real-valued matrix, broadest virtual class is dMatrix
-               scale <- sum(obj)/prod(dim(obj))
-               .ScalingDecomposition(canonicalForm = (1.0/scale) * obj,
-                                     magnitude     = scale,
-                                     scaling       = .DiagonalScaling(
-                                                         colFactor = rep(1.0,dim(obj)[2],
-                                                         rowFactor = rep(1.0,dim(obj)[1]))))
+#
+setGeneric("doublyStochasticDecomposition",signature="obj",
+function(obj, ...) standardGeneric("doublyStochasticDecomposition"))
+
+setMethod("doublyStochasticDecomposition", "dgTMatrix",
+function(obj, ...) { # Must be a real-valued matrix, broadest virtual class is dMatrix
+    mag <- sum(obj)/prod(dim(obj))
+    .ScalingDecomposition(canonicalForm = obj / mag,
+                          magnitude     = mag,
+                          scaling       = 
+        .DiagonalScaling(colFactor = rep(1.0,dim(obj)[2]),
+                         rowFactor = rep(1.0,dim(obj)[1])))
 }) # doublyStochasticDecomposition
 
-#------------------------------------------------------------------------------------------------------------------------
+# end of ProjectiveDecomposition.R
